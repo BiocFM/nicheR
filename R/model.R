@@ -1,3 +1,24 @@
+#' Download and cache the Nicheformer weights
+#' @return path to the cached .pt file
+nicheformer_weights <- function() {
+  url <- "https://huggingface.co/juanhenao/nicheR/resolve/main/nicheformer_embedpath.pt"
+  
+  if (requireNamespace("BiocFileCache", quietly = TRUE)) {
+    bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
+    return(BiocFileCache::bfcrpath(bfc, url))
+  }
+  
+  # fallback: plain cache dir
+  dest <- file.path(tools::R_user_dir("nicheR", "cache"),
+                    "nicheformer_embedpath.pt")
+  dir.create(dirname(dest), recursive = TRUE, showWarnings = FALSE)
+  if (!file.exists(dest)) {
+    message("Downloading Nicheformer weights (~150 MB), one time only...")
+    utils::download.file(url, dest, mode = "wb")
+  }
+  dest
+}
+
 #' Fill masked padding positions and derive the attention mask
 #'
 #' Remaps padding tokens (0 -> `padding_token`) in a batch's token tensor
@@ -127,7 +148,7 @@ nicheformer <- function(
 
   model <- nicheformer()
 
-  W <- load_state_dict(system.file("extdata", "nicheformer_embedpath.pt", package = "nicheR"))
+  W <- load_state_dict(nicheformer_weights())
   sd <- model$state_dict()
 
   with_no_grad({
