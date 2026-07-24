@@ -1,0 +1,21 @@
+services:
+  r-dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces/project:cached
+      - renv_cache:/opt/renv/cache
+    working_dir: /workspaces/project
+    command: sleep infinity
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  renv_cache:
+

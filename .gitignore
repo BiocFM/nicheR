@@ -1,0 +1,2 @@
+# Large model weights - fetch at runtime instead of bundling in git
+inst/extdata/nicheformer_embedpath.pt

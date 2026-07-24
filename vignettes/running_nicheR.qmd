@@ -1,0 +1,92 @@
+---
+title: "Running Nicheformer foundational model"
+author: ""
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+abstract: >
+  This package takes any Bioconductor-based object (SCE or SPE) with gene expression counts and Ensembl gene identifiers, and computes embeddings using Nicheformer (theislab/Nicheformer).
+output:
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Running Nicheformer foundational model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+---
+
+Load the packages needed to run `Nicheformer` in R.
+
+```{r}
+library(torch)
+library(anndataR)
+library(SingleCellExperiment)
+library(nicheR)
+```
+
+# Loading data
+
+Here, we use a subsetted Xenium human colon experiment with 200 cells and 422 genes from [Oliveira et al.](https://www.nature.com/articles/s41588-025-02193-3).
+
+```{r}
+sce <- read_h5ad(system.file("extdata", "spe_converted_subset_200_iter_1.h5ad", package = "nicheR"),as ="SingleCellExperiment")
+```
+
+# Tokenization
+
+Tokens encode ranked gene positions according to a reference list of Ensembl IDs. Gene expression is first corrected using its technology-specific mean expression. In addition to these gene tokens, `Nicheformer` prepends three context tokens that give the model biological and technical context: modality, species, and technology (assay).
+
+modality:
+* dissociated = 3
+* spatial = 4
+
+species:
+* human = 5
+* Homo sapiens = 5
+* Mus musculus = 6
+* mouse = 6
+
+technology:
+* merfish = 7
+* MERFISH = 7
+* cosmx = 8
+* NanoString digital spatial profiling = 8
+* Xenium = 9
+* 10x 5' v2 = 10
+* 10x 3' v3 = 11
+* 10x 3' v2 = 12
+* 10x 5' v1 = 13
+* 10x 3' v1 = 14
+* 10x 3' transcription profiling = 15
+* 10x transcription profiling = 15
+* 10x 5' transcription profiling = 16
+* CITE-seq = 17
+* Smart-seq v4 = 18
+
+```{r}
+X <- tokenization(sce,"xenium", specie = 5L, assay_tok = 9L, modality = 4L)
+```
+
+# Loading weights
+
+The `nicheformer` function builds the model and loads its pre-trained weights, while `run_nicheformer` computes embeddings in batches and supports GPU acceleration.
+
+```{r}
+model <- nicheformer()
+emb <- run_nicheformer(model, X, batch_size = 8L, device = "cpu")
+```
+
+# Embeddings overview
+
+Each cell's embedding has a fixed length of 512, matching the model's hidden dimension, regardless of how many gene tokens were truncated during tokenization.
+
+```{r}
+dim(emb)
+emb[1:6,1:6]
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```
