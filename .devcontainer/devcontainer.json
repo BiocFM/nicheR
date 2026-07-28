@@ -1,0 +1,26 @@
+{
+  "name": "project (R + renv)",
+  "dockerComposeFile": ["./docker-compose.yml"],
+  "service": "r-dev",
+  "workspaceFolder": "/workspaces/project",
+  "shutdownAction": "stopCompose",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "REditorSupport.r",
+        "rdebugger.r-debugger",
+        "Ikuyadeu.r",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot"
+      ],
+      "settings": {
+        "r.rterm.linux": "/usr/bin/R",
+        "r.bracketedPaste": true
+      }
+    }
+  },
+
+  "postCreateCommand": "bash -lc 'quarto --version && if [ -f renv.lock ]; then R -q -e \"renv::restore(prompt = FALSE)\"; else R -q -e \"repos <- \\\"https://cloud.r-project.org\\\"; if (!requireNamespace(\\\"BiocManager\\\", quietly = TRUE)) install.packages(\\\"BiocManager\\\", repos = repos); if (!requireNamespace(\\\"remotes\\\", quietly = TRUE)) install.packages(\\\"remotes\\\", repos = repos); options(repos = BiocManager::repositories()); remotes::install_deps(dependencies = TRUE, upgrade = \\\"never\\\")\"; fi'"
+}
+

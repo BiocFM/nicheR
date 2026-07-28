@@ -1,5 +1,10 @@
+# Large model weights - fetch at runtime instead of bundling in git
+*.pt
+
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 *.Rproj
+*.html
+*_files/
