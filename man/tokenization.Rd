@@ -4,15 +4,21 @@
 \alias{tokenization}
 \title{Tokenize a spatial single-cell experiment for NicheFormer}
 \usage{
-tokenization(counts, tech, specie, assay_tok, modality, CONTEXT_LENGTH = 1500L)
+tokenization(
+  counts,
+  tech_means,
+  specie,
+  assay_tok,
+  modality,
+  CONTEXT_LENGTH = 1500L
+)
 }
 \arguments{
 \item{counts}{a `SingleCellExperiment` with gene counts in its first
 assay, whose `rownames()` are (a subset of) the `refsce` reference
 gene panel bundled with the package.}
 
-\item{tech}{character scalar naming the expression technology used to
-correct counts before ranking; one of `"xenium"` or `"cosmx"`.}
+\item{tech_means}{an object of technology specific means.}
 
 \item{specie}{integer context token identifying species.}
 

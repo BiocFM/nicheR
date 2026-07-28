@@ -1,24 +1,3 @@
-#' Download and cache the Nicheformer weights
-#' @return path to the cached .pt file
-nicheformer_weights <- function() {
-  url <- "https://huggingface.co/juanhenao/nicheR/resolve/main/nicheformer_embedpath.pt"
-  
-  if (requireNamespace("BiocFileCache", quietly = TRUE)) {
-    bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
-    return(BiocFileCache::bfcrpath(bfc, url))
-  }
-  
-  # fallback: plain cache dir
-  dest <- file.path(tools::R_user_dir("nicheR", "cache"),
-                    "nicheformer_embedpath.pt")
-  dir.create(dirname(dest), recursive = TRUE, showWarnings = FALSE)
-  if (!file.exists(dest)) {
-    message("Downloading Nicheformer weights (~150 MB), one time only...")
-    utils::download.file(url, dest, mode = "wb")
-  }
-  dest
-}
-
 #' Fill masked padding positions and derive the attention mask
 #'
 #' Remaps padding tokens (0 -> `padding_token`) in a batch's token tensor
@@ -46,6 +25,7 @@ complete_masking_p0 <- function(batch) {
 #' state dict bundled with the package, and returns it ready for
 #' inference via [run_nicheformer()].
 #'
+#' @param weights model weights trained by a nicheformer model. 
 #' @param dim_model embedding/model dimension (`d_model`) of the
 #'   transformer encoder.
 #' @param nheads number of attention heads per encoder layer.
@@ -68,8 +48,10 @@ complete_masking_p0 <- function(batch) {
 #'   pretrained weights from the packaged `nicheformer_embedpath.pt`
 #'   state dict loaded and moved to `dev`.
 #' @import torch
+#' @import safetensors
 #' @export
 nicheformer <- function(
+  weights,
   dim_model = 512L,
   nheads = 16L, 
   dim_feedforward = 1024L,
@@ -148,7 +130,7 @@ nicheformer <- function(
 
   model <- nicheformer()
 
-  W <- load_state_dict(nicheformer_weights())
+  W <- load_state_dict(weights)
   sd <- model$state_dict()
 
   with_no_grad({
@@ -199,7 +181,7 @@ run_nicheformer <- function(model, X, batch_size = 8L, device = "cpu") {
       k <- k + 1L
       rm(xb, e); gc()
       cat(sprintf("\r%d / %d cells", end, n))
-      cuda_empty_cache()
+      if(torch::cuda_is_available()) cuda_empty_cache()
     }
   })
   cat("\n")

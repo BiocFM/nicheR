@@ -3,4 +3,7 @@
 export(nicheformer)
 export(run_nicheformer)
 export(tokenization)
+import(SingleCellExperiment)
+import(safetensors)
 import(torch)
+importFrom(utils,data)

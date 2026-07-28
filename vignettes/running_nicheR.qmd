@@ -64,15 +64,36 @@ technology:
 * Smart-seq v4 = 18
 
 ```{r}
-X <- tokenization(sce,"xenium", specie = 5L, assay_tok = 9L, modality = 4L)
+data("xenium_means", package="nicheR")
+X <- tokenization(sce, xenium_means, specie = 5L, assay_tok = 9L, modality = 4L)
 ```
 
 # Loading weights
 
+You can install weights directly from Huggingface using the **hfhub** package
+which will cache the weights once downloaded.
+
+```{r}
+if(!requireNamespace("hfhub"))
+  install.packages("hfhub")
+library(hfhub)
+nf_weights <- hub_download("juanhenao/nicheR", "nicheformer_embedpath.pt")
+```
+
+You can also use **BiocFileCache** package to download and cache the file. 
+
+```{r}
+if(!requireNamespace("BiocFileCache"))
+  BiocManager::install("BiocFileCache")
+url <- "https://huggingface.co/juanhenao/nicheR/resolve/main/nicheformer_embedpath.pt"
+bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
+nf_weights <- BiocFileCache::bfcrpath(bfc, url)
+```
+
 The `nicheformer` function builds the model and loads its pre-trained weights, while `run_nicheformer` computes embeddings in batches and supports GPU acceleration.
 
 ```{r}
-model <- nicheformer()
+model <- nicheformer(weights = nf_weights)
 emb <- run_nicheformer(model, X, batch_size = 8L, device = "cpu")
 ```
 

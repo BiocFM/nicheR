@@ -5,6 +5,7 @@
 \title{Build a NicheFormer model and load pretrained weights}
 \usage{
 nicheformer(
+  weights,
   dim_model = 512L,
   nheads = 16L,
   dim_feedforward = 1024L,
@@ -18,6 +19,8 @@ nicheformer(
 )
 }
 \arguments{
+\item{weights}{model weights trained by a nicheformer model.}
+
 \item{dim_model}{embedding/model dimension (`d_model`) of the
 transformer encoder.}
 

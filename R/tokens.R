@@ -69,30 +69,20 @@ tokenize_cell <- function(counts, tech_mean, ref_pos0, L, AUX = 30L) {
 #' @param counts a `SingleCellExperiment` with gene counts in its first
 #'   assay, whose `rownames()` are (a subset of) the `refsce` reference
 #'   gene panel bundled with the package.
-#' @param tech character scalar naming the expression technology used to
-#'   correct counts before ranking; one of `"xenium"` or `"cosmx"`.
+#' @param tech_means an object of technology specific means. 
 #' @param specie integer context token identifying species.
 #' @param assay_tok integer context token identifying the assay/technology.
 #' @param modality integer context token identifying the modality.
 #' @param CONTEXT_LENGTH total sequence length expected by the model,
 #'   including the 3 leading context tokens.
+#' @importFrom utils data
+#' @import SingleCellExperiment
 #' @return an integer matrix with one row per cell and `CONTEXT_LENGTH`
 #'   columns: 3 leading context tokens (species, assay, modality) followed
 #'   by ranked, technology-corrected gene tokens, zero-padded as needed.
 #' @export
-tokenization <- function(counts,tech,specie, assay_tok, modality,CONTEXT_LENGTH = 1500L){
-  data("refsce", package="nicheR")
-
-  if(tech == "xenium"){
-    data("xenium_means", package="nicheR")
-    tech_means <- xenium_means
-  }else if (tech == "cosmx") {
-    data("cosmx_means", package="nicheR")
-    tech_means <- cosmx_means
-  }else {
-    stop("Technology do not defined or not available in nicheR")
-  }
-
+tokenization <- function(counts, tech_means, specie, assay_tok, modality,CONTEXT_LENGTH = 1500L){
+  utils::data("refsce", package="nicheR")
   names(tech_means) <- rownames(refsce)
   tech_means <-  tech_means[match(rownames(counts),names(tech_means))]
   panel_to_ref0 <- match(rownames(counts), rownames(refsce)) - 1L
