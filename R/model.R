@@ -160,16 +160,15 @@ nicheformer <- function(
 #' @param X integer matrix of tokens, one row per cell, as produced by
 #'   [tokenization()].
 #' @param batch_size number of cells processed per forward pass.
-#' @param device device used for computation, e.g. `"cpu"` or a CUDA
-#'   device string; should match the device `model` was placed on.
 #' @return a numeric matrix with one row per cell (same order as `X`)
 #'   and `dim_model` columns, holding the mean-pooled embedding for each
 #'   cell.
 #' @export
-run_nicheformer <- function(model, X, batch_size = 8L, device = "cpu") {
+run_nicheformer <- function(model, X, batch_size = 8L) {
   n <- nrow(X)
   out <- vector("list", ceiling(n / batch_size))
   k <- 1L
+  device <- model$parameters[[1]]$device
   
   with_no_grad({
     for (start in seq(1L, n, by = batch_size)) {

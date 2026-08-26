@@ -4,7 +4,7 @@
 \alias{run_nicheformer}
 \title{Compute NicheFormer embeddings for a token matrix}
 \usage{
-run_nicheformer(model, X, batch_size = 8L, device = "cpu")
+run_nicheformer(model, X, batch_size = 8L)
 }
 \arguments{
 \item{model}{an `nn_module` produced by [nicheformer()].}
@@ -13,9 +13,6 @@ run_nicheformer(model, X, batch_size = 8L, device = "cpu")
 [tokenization()].}
 
 \item{batch_size}{number of cells processed per forward pass.}
-
-\item{device}{device used for computation, e.g. `"cpu"` or a CUDA
-device string; should match the device `model` was placed on.}
 }
 \value{
 a numeric matrix with one row per cell (same order as `X`)
