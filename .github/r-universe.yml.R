@@ -2,10 +2,10 @@ name: R-universe test
 
 on:
   push:
-  branches: [main]
-pull_request:
-  
-  jobs:
+    branches: [main]
+  pull_request:
+
+jobs:
   build:
-  name: R-universe testing
-uses: r-universe-org/workflows/.github/workflows/build.yml@v3
+    name: R-universe testing
+    uses: r-universe-org/workflows/.github/workflows/build.yml@v3
