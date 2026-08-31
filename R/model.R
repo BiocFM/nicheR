@@ -102,7 +102,8 @@ nicheformer <- function(
       attention_mask <- batch[["attention_mask"]]
 
       # [IDX] py token id k -> R embedding row k+1
-      token_embedding <- self$embeddings(masked_indices + 1L)
+      # .contiguous() avoids MPS "Placeholder storage" error with non-contiguous indices
+      token_embedding <- self$embeddings((masked_indices + 1L)$contiguous())
 
       if (self$learnable_pe) {
         pos_embedding <- self$positional_embedding(self$pos)
@@ -171,6 +172,8 @@ run_nicheformer <- function(model, X, batch_size = 8L, device = "cpu") {
   out <- vector("list", ceiling(n / batch_size))
   k <- 1L
   
+  model$to(device = device)
+
   with_no_grad({
     for (start in seq(1L, n, by = batch_size)) {
       end <- min(start + batch_size - 1L, n)
